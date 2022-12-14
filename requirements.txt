@@ -1,0 +1,9 @@
+numpy
+streamlit
+pandas
+keras
+Keras-Preprocessing
+tensorflow-cpu
+matplotlib
+pillow
+opencv-python
