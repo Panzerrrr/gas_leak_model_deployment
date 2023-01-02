@@ -33,10 +33,10 @@ conn = psycopg2.connect(
 
 ########### DIR'S PATH ###########
 
-MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'../models/my_model_3rd_iteration.h5')
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'models/my_model_3rd_iteration.h5')
 print(MODEL_DIR)
-SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'../data')
-PRED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'../data/pred.jpg')
+SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data')
+PRED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data/pred.jpg')
 
 
 ########### LOAD MODEL AND DATA ###########
@@ -143,7 +143,6 @@ if check_password():
 
         st.write(prediction)
 
-        conn = psycopg2.connect(host=db_host, database=db_name, user=db_username, password=db_password)
         cursor = conn.cursor()
         # Save the prediction to the database
         cursor.execute("CREATE TABLE IF NOT EXISTS predictions  (id SERIAL PRIMARY KEY, input_data TEXT, prediction TEXT)")
