@@ -20,7 +20,7 @@ import os
 db_host = os.environ["DB_HOST"]
 db_username = os.environ["DB_USERNAME"]
 db_password = os.environ["DB_PASSWORD"]
-db_name = os.environ["DB_USERNAME"]
+db_name = os.environ["DB_NAME"]
 
 # Connect to the database using the secrets
 conn = psycopg2.connect(
