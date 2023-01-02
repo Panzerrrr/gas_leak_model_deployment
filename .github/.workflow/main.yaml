@@ -1,0 +1,16 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and push image
+      run: |
+        docker build -t streamlit-docker .
+        docker push streamlit-docker
+    - name: Deploy to production
+      run: |
+        docker run -e DB_HOST=${{ secrets.DB_HOST }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e DB_NAME=${{ secrets.DB_NAME }} streamlit-docker
