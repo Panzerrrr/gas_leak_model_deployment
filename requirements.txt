@@ -7,3 +7,4 @@ tensorflow-cpu
 matplotlib
 pillow
 opencv-python
+psycopg2
