@@ -158,8 +158,12 @@ if check_password():
         # Commit the changes
         conn.commit()
 
-        # Retrieve the user's id
-        cursor.execute("SELECT id FROM users WHERE name = %s", ("nidal",))
+        if st.session_state["username"] == 'nidal':
+            # Retrieve the user's id
+            cursor.execute("SELECT id FROM users WHERE name = %s", ("nidal",))
+        else:
+            cursor.execute("SELECT id FROM users WHERE name = %s", ("jean",))
+            
         user_id = cursor.fetchone()[0]
 
 
