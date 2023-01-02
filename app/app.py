@@ -34,7 +34,6 @@ conn = psycopg2.connect(
 ########### DIR'S PATH ###########
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'models/my_model_3rd_iteration.h5')
-print(MODEL_DIR)
 SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data')
 PRED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data/pred.jpg')
 
@@ -154,16 +153,12 @@ if check_password():
         cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
         # Insert a row into the users table
-        cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("nidal", "nidal@example.com"))
+        cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
         # Commit the changes
         conn.commit()
 
-        if st.session_state["username"] == 'nidal':
-            # Retrieve the user's id
-            cursor.execute("SELECT id FROM users WHERE name = %s", ("nidal",))
-        else:
-            cursor.execute("SELECT id FROM users WHERE name = %s", ("jean",))
-            
+        # Retrieve the user's id
+        cursor.execute("SELECT id FROM users WHERE name = %s", ("jean",))
         user_id = cursor.fetchone()[0]
 
 
