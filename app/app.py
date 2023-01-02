@@ -49,7 +49,7 @@ def round_to_one_zero_after_decimal(n):
         return 0
     sgn = -1 if n < 0 else 1
     scale = int(-math.floor(math.log10(abs(n))))
-    if scale <= 0:
+    if scale < 0:
         scale = 1
     factor = 10**scale
     return sgn*math.floor(abs(n)*factor)/factor
