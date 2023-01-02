@@ -29,8 +29,7 @@ conn = psycopg2.connect(
     user=db_username,
     password=db_password,
 )
-conn = psycopg2.connect(host=db_host, database=db_name, user=db_username, password=db_password)
-cursor = conn.cursor()
+
 
 ########### DIR'S PATH ###########
 
@@ -143,7 +142,9 @@ if check_password():
         prediction = model_origin.predict(img_resized,verbose=1)
 
         st.write(prediction)
-    
+
+        conn = psycopg2.connect(host=db_host, database=db_name, user=db_username, password=db_password)
+        cursor = conn.cursor()
         # Save the prediction to the database
         cursor.execute("CREATE TABLE IF NOT EXISTS predictions  (id SERIAL PRIMARY KEY, input_data TEXT, prediction TEXT)")
 

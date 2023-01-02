@@ -138,4 +138,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/.streamlit/secrets.toml
+.streamlit/secrets.toml
+.github
