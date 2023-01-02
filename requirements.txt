@@ -7,4 +7,4 @@ tensorflow-cpu
 matplotlib
 pillow
 opencv-python
-psycopg2
+psycopg2-binary
