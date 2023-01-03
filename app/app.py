@@ -153,7 +153,7 @@ if check_password():
         cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
         # Insert a row into the users table
-        cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s) ON CONFLICT DO NOTHING", ("jean", "jean@example.com"))
+        cursor.execute("INSERT INTO IGNORE users (name, email) VALUES (%s, %s) ON CONFLICT DO NOTHING", ("jean", "jean@example.com"))
         # Commit the changes
         conn.commit()
 
