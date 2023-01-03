@@ -67,6 +67,7 @@ def check_password():
             st.session_state["username"] in st.secrets["passwords"]
             and st.session_state["password"]
             == st.secrets["passwords"][st.session_state["username"]]
+
         ):
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # don't store username + password
@@ -153,7 +154,7 @@ if check_password():
         cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
         # Insert a row into the users table
-        cursor.execute("INSERT INTO IGNORE users (name, email) VALUES (%s, %s) ON CONFLICT DO NOTHING", ("jean", "jean@example.com"))
+        cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
         # Commit the changes
         conn.commit()
 
