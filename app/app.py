@@ -162,10 +162,10 @@ if check_password():
 
         # Create the INSERT statement
         sql = """
-        INSERT INTO table_name (name, email)
+        INSERT INTO users (name, email)
         SELECT * FROM (SELECT %s, %s) AS tmp
         WHERE NOT EXISTS (
-            SELECT name, email FROM table_name WHERE name = %s AND email = %s
+            SELECT name, email FROM users WHERE name = %s AND email = %s
         ) LIMIT 1;
         """
         cursor.execute(sql, (name, email, name, email))
