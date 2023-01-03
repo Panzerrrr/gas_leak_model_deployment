@@ -154,12 +154,26 @@ if check_password():
         cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
         # Insert a row into the users table
-        cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
+        # cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
+
+        # Define the values to insert
+        name = "jean"
+        email = "jean@example.com"
+
+        # Create the INSERT statement
+        sql = """
+        INSERT INTO table_name (name, email)
+        SELECT * FROM (SELECT %s, %s) AS tmp
+        WHERE NOT EXISTS (
+            SELECT name, email FROM table_name WHERE name = %s AND email = %s
+        ) LIMIT 1;
+        """
+        cursor.execute(sql, (name, email, name, email))
         # Commit the changes
         conn.commit()
 
         # Retrieve the user's id
-        cursor.execute("SELECT id FROM users WHERE name = %s", ("jean",))
+        cursor.execute("SELECT id FROM users WHERE name = %s", (name,))
         user_id = cursor.fetchone()[0]
 
 
