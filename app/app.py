@@ -56,142 +56,98 @@ def round_to_one_zero_after_decimal(n):
 
 # streamlit_app.py
 
-import streamlit as st
+########### HIDE BURGER MENU ###########
 
-def check_password():
-    """Returns `True` if the user had a correct password."""
+st.markdown(""" <style>
+footer {visibility: hidden;}
+span {color: #1F2023;}
+</style> """, unsafe_allow_html=True)
 
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if (
-            st.session_state["username"] in st.secrets["passwords"]
-            and st.session_state["password"]
-            == st.secrets["passwords"][st.session_state["username"]]
+########### CONDENSE LAYOUT ###########
 
-        ):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store username + password
-            del st.session_state["username"]
-        else:
-            st.session_state["password_correct"] = False
-
-    if "password_correct" not in st.session_state:
-        # First run, show inputs for username + password.
-        st.text_input("Username", on_change=password_entered, key="username")
-        st.text_input(
-            "Password", type="password", on_change=password_entered, key="password"
-        )
-        return False
-    elif not st.session_state["password_correct"]:
-        # Password not correct, show input + error.
-        st.text_input("Username", on_change=password_entered, key="username")
-        st.text_input(
-            "Password", type="password", on_change=password_entered, key="password"
-        )
-        st.error("😕 User not known or password incorrect")
-        return False
-    else:
-        # Password correct.
-        return True
-
-if check_password():
-    st.write("Here goes your normal Streamlit app...")
-    st.button("Click me")
+padding = 0
+st.markdown(f""" <style>
+    .reportview-container .main .block-container{{
+        padding-top: {padding}rem;
+        padding-right: {padding}rem;
+        padding-left: {padding}rem;
+        padding-bottom: {padding}rem;
+    }} </style> """, unsafe_allow_html=True)
 
 
+########### UPLOAD AND SAVE FILE ###########
+st.subheader('Detecter une Fuite de Gaz !')
 
-    ########### HIDE BURGER MENU ###########
+st.subheader('Veuillez charger un document compatible (format jpg)')
 
-    st.markdown(""" <style>
-    footer {visibility: hidden;}
-    span {color: #1F2023;}
-    </style> """, unsafe_allow_html=True)
-
-    ########### CONDENSE LAYOUT ###########
-
-    padding = 0
-    st.markdown(f""" <style>
-        .reportview-container .main .block-container{{
-            padding-top: {padding}rem;
-            padding-right: {padding}rem;
-            padding-left: {padding}rem;
-            padding-bottom: {padding}rem;
-        }} </style> """, unsafe_allow_html=True)
+def save_uploadedfile(uploadedfile):
+    with open(os.path.join(SAVE_DIR,'pred.jpg'),"wb") as f:
+        f.write(uploadedfile.getbuffer())
+        
+    return st.success("Image chargée !")
 
 
-    ########### UPLOAD AND SAVE FILE ###########
-    st.subheader('Detecter une Fuite de Gaz !')
+datafile = st.file_uploader("Image jpg nécessaire",type=['jpg'])
+if datafile is not None:
+    file_details = {"FileName":datafile.name,"FileType":datafile.type}
+    save_uploadedfile(datafile)
 
-    st.subheader('Veuillez charger un document compatible (format jpg)')
+    img = cv2.imread(PRED_FILE)
+    img = np.array(img)
+    img_resized = np.array(img).reshape(1,l,L,-1)
+    prediction = model_origin.predict(img_resized,verbose=1)
 
-    def save_uploadedfile(uploadedfile):
-        with open(os.path.join(SAVE_DIR,'pred.jpg'),"wb") as f:
-            f.write(uploadedfile.getbuffer())
-            
-        return st.success("Image chargée !")
+    st.write(prediction)
 
+    cursor = conn.cursor()
+    # Save the prediction to the database
+    cursor.execute("CREATE TABLE IF NOT EXISTS predictions  (id SERIAL PRIMARY KEY, input_data TEXT, prediction TEXT)")
 
-    datafile = st.file_uploader("Image jpg nécessaire",type=['jpg'])
-    if datafile is not None:
-        file_details = {"FileName":datafile.name,"FileType":datafile.type}
-        save_uploadedfile(datafile)
+    # Create the users table
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY UNIQUE, name TEXT UNIQUE, email TEXT UNIQUE)")
 
-        img = cv2.imread(PRED_FILE)
-        img = np.array(img)
-        img_resized = np.array(img).reshape(1,l,L,-1)
-        prediction = model_origin.predict(img_resized,verbose=1)
+    # Add a foreign key to the predictions table
+    cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
-        st.write(prediction)
+    # Insert a row into the users table
+    # cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
 
-        cursor = conn.cursor()
-        # Save the prediction to the database
-        cursor.execute("CREATE TABLE IF NOT EXISTS predictions  (id SERIAL PRIMARY KEY, input_data TEXT, prediction TEXT)")
+    # Define the values to insert
+    name = "jean"
+    email = "jean@example.com"
 
-        # Create the users table
-        cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY UNIQUE, name TEXT UNIQUE, email TEXT UNIQUE)")
+    # Create the INSERT statement
+    sql = """
+    INSERT INTO users (name, email)
+    SELECT * FROM (SELECT %s, %s) AS tmp
+    WHERE NOT EXISTS (
+        SELECT name, email FROM users WHERE name = %s AND email = %s
+    ) LIMIT 1;
+    """
+    cursor.execute(sql, (name, email, name, email))
+    # Commit the changes
+    conn.commit()
 
-        # Add a foreign key to the predictions table
-        cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
-
-        # Insert a row into the users table
-        # cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
-
-        # Define the values to insert
-        name = "jean"
-        email = "jean@example.com"
-
-        # Create the INSERT statement
-        sql = """
-        INSERT INTO users (name, email)
-        SELECT * FROM (SELECT %s, %s) AS tmp
-        WHERE NOT EXISTS (
-            SELECT name, email FROM users WHERE name = %s AND email = %s
-        ) LIMIT 1;
-        """
-        cursor.execute(sql, (name, email, name, email))
-        # Commit the changes
-        conn.commit()
-
-        # Retrieve the user's id
-        cursor.execute("SELECT id FROM users WHERE name = %s", (name,))
-        user_id = cursor.fetchone()[0]
+    # Retrieve the user's id
+    cursor.execute("SELECT id FROM users WHERE name = %s", (name,))
+    user_id = cursor.fetchone()[0]
 
 
-        # cursor.execute("INSERT INTO predictions (input_data, prediction) VALUES (%s, %s)", (input_data, round_to_one_zero_after_decimal(float(prediction))))
+    # cursor.execute("INSERT INTO predictions (input_data, prediction) VALUES (%s, %s)", (input_data, round_to_one_zero_after_decimal(float(prediction))))
 
-        cursor.execute("INSERT INTO predictions (user_id, input_data, prediction) VALUES (%s, %s, %s)", (user_id, str(datafile), round_to_one_zero_after_decimal(float(prediction))))
+    cursor.execute("INSERT INTO predictions (user_id, input_data, prediction) VALUES (%s, %s, %s)", (user_id, str(datafile), round_to_one_zero_after_decimal(float(prediction))))
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-            # for i in os.listdir(SAVE_DIR):
-            #         os.remove(os.path.join(SAVE_DIR, i))
-            
+        # for i in os.listdir(SAVE_DIR):
+        #         os.remove(os.path.join(SAVE_DIR, i))
+        
 
-            # ##### USE DATA'S SAVED WITH THE MODEL FOR PREDICT #####
-            # predictions = model.predict(df.drop(columns=['Strength'],axis=1))
-            # norm_list = check_norm(predictions)
+        # ##### USE DATA'S SAVED WITH THE MODEL FOR PREDICT #####
+        # predictions = model.predict(df.drop(columns=['Strength'],axis=1))
+        # norm_list = check_norm(predictions)
 
 
 
