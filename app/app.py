@@ -97,7 +97,7 @@ if datafile is not None:
     save_uploadedfile(datafile)
 
 
-    img = cv2.imread(datafile)
+    img = cv2.imread(PRED_FILE)
     img = np.array(img)
     img_resized = np.array(img).reshape(1,l,L,-1)
     prediction = model_origin.predict(img_resized,verbose=1)
