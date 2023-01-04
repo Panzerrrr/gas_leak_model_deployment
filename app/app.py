@@ -54,10 +54,6 @@ def round_to_one_zero_after_decimal(n):
     factor = 10**scale
     return sgn*math.floor(abs(n)*factor)/factor
 
-
-def convert_df(df):
-    return df.to_csv(index=False).encode('utf-8')
-
 # streamlit_app.py
 
 ########### HIDE BURGER MENU ###########
@@ -96,7 +92,6 @@ if datafile is not None:
     file_details = {"FileName":datafile.name,"FileType":datafile.type}
     save_uploadedfile(datafile)
 
-
     img = cv2.imread(PRED_FILE)
     img = np.array(img)
     img_resized = np.array(img).reshape(1,l,L,-1)
@@ -104,7 +99,17 @@ if datafile is not None:
 
 
     image = Image.open(datafile)
-    st.image(image, caption='Image passée au model')
+
+    col1, col2, col3 = st.beta_columns([1,6,1])
+
+    with col1:
+        st.write("")
+    with col2:
+        st.image(image, caption='Image passée au model')
+    with col3:
+        st.write("")
+
+    st.write(prediction)
 
     cursor = conn.cursor()
     # Save the prediction to the database
