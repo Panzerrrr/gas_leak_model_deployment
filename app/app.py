@@ -104,27 +104,23 @@ if datafile is not None:
     cursor.execute("CREATE TABLE IF NOT EXISTS predictions  (id SERIAL PRIMARY KEY, input_data TEXT, prediction TEXT)")
 
     # Create the users table
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY UNIQUE, name TEXT UNIQUE, email TEXT UNIQUE)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY UNIQUE, name TEXT UNIQUE)")
 
     # Add a foreign key to the predictions table
     cursor.execute("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)")
 
-    # Insert a row into the users table
-    # cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", ("jean", "jean@example.com"))
-
     # Define the values to insert
-    name = "jean"
-    email = "jean@example.com"
+    name = "Nidal"
 
     # Create the INSERT statement
     sql = """
-    INSERT INTO users (name, email)
-    SELECT * FROM (SELECT %s, %s) AS tmp
+    INSERT INTO users (name)
+    SELECT * FROM (SELECT %s) AS tmp
     WHERE NOT EXISTS (
-        SELECT name, email FROM users WHERE name = %s AND email = %s
+        SELECT name FROM users WHERE name = %s
     ) LIMIT 1;
     """
-    cursor.execute(sql, (name, email, name, email))
+    cursor.execute(sql, (name, name))
     # Commit the changes
     conn.commit()
 
@@ -133,22 +129,12 @@ if datafile is not None:
     user_id = cursor.fetchone()[0]
 
 
-    # cursor.execute("INSERT INTO predictions (input_data, prediction) VALUES (%s, %s)", (input_data, round_to_one_zero_after_decimal(float(prediction))))
 
     cursor.execute("INSERT INTO predictions (user_id, input_data, prediction) VALUES (%s, %s, %s)", (user_id, str(datafile), round_to_one_zero_after_decimal(float(prediction))))
 
     conn.commit()
     cursor.close()
     conn.close()
-
-        # for i in os.listdir(SAVE_DIR):
-        #         os.remove(os.path.join(SAVE_DIR, i))
-        
-
-        # ##### USE DATA'S SAVED WITH THE MODEL FOR PREDICT #####
-        # predictions = model.predict(df.drop(columns=['Strength'],axis=1))
-        # norm_list = check_norm(predictions)
-
 
 
 
