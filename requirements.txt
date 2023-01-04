@@ -5,6 +5,6 @@ keras
 Keras-Preprocessing
 tensorflow-cpu
 matplotlib
-pillow
+Pillow
 opencv-python
 psycopg2-binary
