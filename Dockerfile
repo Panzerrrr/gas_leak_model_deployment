@@ -12,6 +12,7 @@ RUN apt-get update
 RUN apt-get install -y --no-install-recommends libgl1 libglib2.0-0
 COPY app ./
 COPY models /usr/app/src/models
-COPY assets/logo_transparent.png /usr/app/src/assets
+COPY assets /usr/app/src/assets
+RUN ls -la usr/app/assets
 
 CMD ["sh", "-c", "streamlit run --server.port $PORT /usr/app/src/app.py --logger.level=debug"]
