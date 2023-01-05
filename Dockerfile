@@ -1,6 +1,6 @@
 FROM python:3.8.2-slim
 
-WORKDIR /usr/app/src
+WORKDIR /usr/app
 
 COPY requirements.txt requirements.txt
 
