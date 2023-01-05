@@ -44,11 +44,11 @@ SAVE_DIR = Path(BASE_DIR,r'data')
 PRED_FILE = Path(BASE_DIR,r'data/pred.jpg')
 print(type(PRED_FILE))
 
-logo = Image.open('logo_transparent.png')
+LOGO = Path(BASE_DIR,Image.open(r'assets/logo_transparent.png'))
 
 ########### CUSTOMIZING PAGE TITLE AND FAVICON ###########
 
-st.set_page_config(page_title='GasLeakDetector', page_icon=logo)
+st.set_page_config(page_title='GasLeakDetector', page_icon=LOGO)
 
 ########### IMG INTRO ###########
 
@@ -57,7 +57,7 @@ col4, col5, col6 = st.columns([1,2.5,1])
 with col4:
     st.write("")
 with col5:
-    st.image(logo,width=400)
+    st.image(LOGO,width=400)
 with col6:
     st.write("")
 
