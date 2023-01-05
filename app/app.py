@@ -15,12 +15,15 @@ from PIL import Image
 import psycopg2
 import math
 import os
+from pathlib import Path
+from conf import *
+
 
 # Retrieve the secrets as environment variables
-db_host = os.environ["DB_HOST"]
-db_username = os.environ["DB_USERNAME"]
-db_password = os.environ["DB_PASSWORD"]
-db_name = os.environ["DB_NAME"]
+db_host = os.getenv("DB_HOST") or DB_HOST
+db_username = os.getenv("DB_USERNAME") or DB_USERNAME
+db_password = os.getenv("DB_PASSWORD") or DB_PASSWORD
+db_name = os.getenv("DB_NAME") or DB_NAME
 
 # Connect to the database using the secrets
 conn = psycopg2.connect(
@@ -33,9 +36,31 @@ conn = psycopg2.connect(
 
 ########### DIR'S PATH ###########
 
-MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'models/my_model_3rd_iteration.h5')
-SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data')
-PRED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data/pred.jpg')
+# MODEL_DIR =  os.path.join(os.path.dirname(os.path.abspath(__file__)),r'models/my_model_3rd_iteration.h5')
+MODEL_DIR = Path(BASE_DIR,r'models/my_model_3rd_iteration.h5')
+# SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data')
+SAVE_DIR = Path(BASE_DIR,r'data')
+# PRED_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),r'data/pred.jpg')
+PRED_FILE = Path(BASE_DIR,r'data/pred.jpg')
+print(type(PRED_FILE))
+
+logo = Image.open('logo_transparent.png')
+
+########### CUSTOMIZING PAGE TITLE AND FAVICON ###########
+
+st.set_page_config(page_title='GasLeakDetector', page_icon=logo)
+
+########### IMG INTRO ###########
+
+col4, col5, col6 = st.columns([1,2.5,1])
+
+with col4:
+    st.write("")
+with col5:
+    st.image(logo,width=400)
+with col6:
+    st.write("")
+
 
 
 ########### LOAD MODEL AND DATA ###########
@@ -65,7 +90,7 @@ span {color: #1F2023;}
 
 ########### CONDENSE LAYOUT ###########
 
-padding = 0
+padding = 5
 st.markdown(f""" <style>
     .reportview-container .main .block-container{{
         padding-top: {padding}rem;
@@ -76,7 +101,7 @@ st.markdown(f""" <style>
 
 
 ########### UPLOAD AND SAVE FILE ###########
-st.subheader('Detecter une Fuite de Gaz !')
+
 
 st.subheader('Veuillez charger un document compatible (format jpg)')
 
@@ -92,7 +117,7 @@ if datafile is not None:
     file_details = {"FileName":datafile.name,"FileType":datafile.type}
     save_uploadedfile(datafile)
 
-    img = cv2.imread(PRED_FILE)
+    img = cv2.imread(str(PRED_FILE))
     img = np.array(img)
     img_resized = np.array(img).reshape(1,l,L,-1)
     prediction = model_origin.predict(img_resized,verbose=1)
@@ -100,16 +125,22 @@ if datafile is not None:
 
     image = Image.open(datafile)
 
-    col1, col2, col3 = st.columns([1,6,1])
+    col1, col2, col3 = st.columns([1,2.5,1])
 
     with col1:
         st.write("")
     with col2:
         st.image(image, caption='Image passée au model')
+        st.write(f"Score du model : {float(prediction)}")
+        if float(prediction) >= 0.5 :
+            st.subheader("Pas de fuites de gaz !")
+        elif float(prediction) < 0.5:
+            st.subheader("Fuite de gaz !")
+
     with col3:
         st.write("")
 
-    st.write(prediction)
+
 
     cursor = conn.cursor()
     # Save the prediction to the database
