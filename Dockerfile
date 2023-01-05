@@ -7,6 +7,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN mkdir /usr/app/src/data
 RUN mkdir /usr/app/src/models
+RUN mkdir /usr/app/src/assets
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends libgl1 libglib2.0-0
 COPY app ./
