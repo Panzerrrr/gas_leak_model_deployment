@@ -44,11 +44,11 @@ SAVE_DIR = Path(BASE_DIR,r'data')
 PRED_FILE = Path(BASE_DIR,r'data/pred.jpg')
 print(type(PRED_FILE))
 
-LOGO = Path(BASE_DIR,Image.open(r'assets/logo_transparent.png'))
+LOGO = Path(BASE_DIR,r'assets/logo_transparent.png')
 
 ########### CUSTOMIZING PAGE TITLE AND FAVICON ###########
 
-st.set_page_config(page_title='GasLeakDetector', page_icon=LOGO)
+st.set_page_config(page_title='GasLeakDetector', page_icon=Image.open(LOGO))
 
 ########### IMG INTRO ###########
 
@@ -57,7 +57,7 @@ col4, col5, col6 = st.columns([1,2.5,1])
 with col4:
     st.write("")
 with col5:
-    st.image(LOGO,width=400)
+    st.image(Image.open(LOGO),width=400)
 with col6:
     st.write("")
 
@@ -103,7 +103,7 @@ st.markdown(f""" <style>
 ########### UPLOAD AND SAVE FILE ###########
 
 
-st.subheader('Veuillez charger un document compatible (format jpg)')
+st.subheader('GasLeakDetector est un classificateur de fuites de gaz, Inserez votre image ci-dessous pour déterminer si une fuite de gaz est présente.')
 
 def save_uploadedfile(uploadedfile):
     with open(os.path.join(SAVE_DIR,'pred.jpg'),"wb") as f:
@@ -125,20 +125,17 @@ if datafile is not None:
 
     image = Image.open(datafile)
 
-    col1, col2, col3 = st.columns([1,2.5,1])
-
+    col1, col2 = st.columns([2,4])
+    
     with col1:
-        st.write("")
+        st.write(f"Score du model : {float(prediction)}")
+
+        if float(prediction) >= 0.5 :
+            st.subheader("Pas de fuites de gaz detecté !")
+        elif float(prediction) < 0.5:
+            st.subheader("Fuite de gaz detecté !")
     with col2:
         st.image(image, caption='Image passée au model')
-        st.write(f"Score du model : {float(prediction)}")
-        if float(prediction) >= 0.5 :
-            st.subheader("Pas de fuites de gaz !")
-        elif float(prediction) < 0.5:
-            st.subheader("Fuite de gaz !")
-
-    with col3:
-        st.write("")
 
 
 
