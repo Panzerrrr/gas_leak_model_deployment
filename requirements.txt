@@ -8,3 +8,4 @@ matplotlib
 Pillow
 opencv-python
 psycopg2-binary
+dotenv

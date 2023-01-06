@@ -1,29 +1,22 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 import os
-########### PREDICT ###########
-
-
 from tensorflow.keras.models import load_model
 import cv2
-from tensorflow.keras.utils import img_to_array
-from tensorflow import convert_to_tensor
-import pandas as pd
 import numpy as np
 from PIL import Image
 import psycopg2
 import math
-import os
 from pathlib import Path
-from conf import *
+from dotenv import load_dotenv
+from conf import BASE_DIR
 
+load_dotenv()
 
 # Retrieve the secrets as environment variables
-db_host = os.getenv("DB_HOST") or DB_HOST
-db_username = os.getenv("DB_USERNAME") or DB_USERNAME
-db_password = os.getenv("DB_PASSWORD") or DB_PASSWORD
-db_name = os.getenv("DB_NAME") or DB_NAME
+db_host = os.getenv("DB_HOST")
+db_username = os.getenv("DB_USERNAME")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
 
 # Connect to the database using the secrets
 conn = psycopg2.connect(
@@ -103,7 +96,7 @@ st.markdown(f""" <style>
 ########### UPLOAD AND SAVE FILE ###########
 
 
-st.subheader('GasLeakDetector est un classificateur de fuites de gaz, Inserez votre image ci-dessous pour déterminer si une fuite de gaz est présente.')
+st.subheader('GasLeakDetector est un classificateur de fuites de gaz. Inserez votre image ci-dessous pour déterminer si une fuite de gaz est présente.')
 
 def save_uploadedfile(uploadedfile):
     with open(os.path.join(SAVE_DIR,'pred.jpg'),"wb") as f:
@@ -131,9 +124,9 @@ if datafile is not None:
         st.write(f"Score du model : {float(prediction)}")
 
         if float(prediction) >= 0.5 :
-            st.subheader("Pas de fuites de gaz detecté !")
+            st.subheader("Pas de fuites de gaz detectée !")
         elif float(prediction) < 0.5:
-            st.subheader("Fuite de gaz detecté !")
+            st.subheader("Fuite de gaz detectée !")
     with col2:
         st.image(image, caption='Image passée au model')
 
